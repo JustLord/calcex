@@ -5,88 +5,65 @@
 #include <stdexcept>
 #include "Parser.h"
 #include <stdexcept>
+#include <stack>
 
+namespace detail {
 
-namespace detail
-{
-
-    TreeNode * Parser::parse() const {
+    TreeNode *Parser::parse() const {
         TreeNode *root = nullptr;
-        TreeNode *prev = nullptr;
 
-        for(auto & token : _tokens)
-        {
-            if (!root)
-            {
-                root = prev = new TreeNode{&token};
-                continue;
-            }
+        std::stack<TreeNode *> operatorsStack;
+        std::stack<TreeNode *> operandsStack;
 
-            if(root->token->getType() != TokenType::Operator)
-            {
-                if(token.getType()!=TokenType::Operator)
-                    throw std::logic_error("Operator was expected");
+        for (auto &token : _tokens) {
+            auto node = new TreeNode(&token);
 
-                auto node = new TreeNode(&token);
-                node->left = prev;
-                root = prev = node;
-                node->left->parent = node;
-                continue;
-            }
-
-            if(prev->token->getType() == TokenType::Operator)
-            {
-                if(token.getType()==TokenType::Operator)
+            if (!root) {
+                if (token.getType() == TokenType::Operator)
                     throw std::logic_error("Operand was expected");
 
-                auto node = new TreeNode(&token);
-                node->parent = prev;
-                prev->right = node;
-                prev = node;
+                root = node;
                 continue;
             }
 
-            if(prev->token->getType() != TokenType::Operator)
-            {
-                if(token.getType()!=TokenType::Operator)
+            if (root->token->getType() != TokenType::Operator) {
+                if (token.getType() != TokenType::Operator)
                     throw std::logic_error("Operator was expected");
 
+                node->left = root;
+                root = node;
 
-                auto &_node = prev;
-
-                if(_node->parent->token->getOperator().priority > token.getOperator().priority)
-                {
-                    while(_node->parent)
-                    {
-                        if(_node->parent->token->getType() == TokenType::Operator)
-                            if(_node->parent->token->getOperator().priority <= token.getOperator().priority)
-                                break;
-
-                         _node = _node->parent;
-                    }
-                }
-
-
-                if(_node->parent->token->getOperator().priority > token.getOperator().priority)
-                {
-                    auto node = new TreeNode(&token);
-                    node->left = _node->parent;
-                    node->left->parent = node;
-                    root = prev = node;
-                    continue;
-
-                }
-
-                auto node = new TreeNode(&token);
-                node->parent = _node->parent;
-                node->left = _node;
-                node->left->parent = node;
-
-                prev = node;
+                operatorsStack.push(node);
                 continue;
             }
-        }
 
+            if (token.getType() != TokenType::Operator) {
+                if (operatorsStack.top()->right)
+                    throw std::logic_error("Operator was expected");
+
+                operatorsStack.top()->right = node;
+
+                continue;
+            }
+
+            if (token.getType() == TokenType::Operator) {
+                while (token.getOperator().priority < operatorsStack.top()->token->getOperator().priority &&
+                       !operatorsStack.empty()) {
+                    operatorsStack.pop();
+                }
+
+                if (!operatorsStack.empty()) {
+                    node->left = operatorsStack.top()->right;
+                    operatorsStack.top()->right = node;
+                } else {
+                    node->left = root;
+                    root = node;
+                }
+
+                operatorsStack.push(node);
+            }
+        }
         return root;
     }
+
 }

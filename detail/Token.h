@@ -75,7 +75,7 @@ namespace detail {
 
     inline Operator Token::getOperator() const { return _operator; }
 
-    inline double Token::getNumber() const { return 0; }
+    inline double Token::getNumber() const { return _number; }
 
 }
 

@@ -2,6 +2,7 @@
 
 #include "detail/Tokenizer.h"
 #include "detail/Parser.h"
+#include "detail/Calculator.h"
 
 using  namespace detail;
 
@@ -13,5 +14,6 @@ int main()
 
     auto tokens = Tokenizer(buffer).tokenize();
     auto tree = Parser(tokens).parse();
+    Calculator(tree).calculate();
     return 0;
 }

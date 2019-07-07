@@ -14,14 +14,13 @@ namespace detail {
     {
         TreeNode *left;
         TreeNode *right;
-        TreeNode *parent;
 
         const Token *token;
 
         TreeNode(const Token *d);
     };
 
-    inline TreeNode::TreeNode(const detail::Token *d) :token{d}, left{}, right{}, parent{} {}
+    inline TreeNode::TreeNode(const detail::Token *d) :token{d}, left{}, right{} {}
 
 
     class Parser {
