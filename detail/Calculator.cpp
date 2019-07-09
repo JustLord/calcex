@@ -2,23 +2,22 @@
 // Created by nikita on 7/6/19.
 //
 
-#include <iostream>
 #include "Calculator.h"
+#include <cmath>
+#include <iostream>
 
-namespace detail{
-    void Calculator::calculate() const {
-         std::cout << calculateNode(_root);
-    }
+namespace detail {
+    void Calculator::calculate() const { std::cout << calculateNode(_root); }
 
-    double Calculator::calculateNode(const TreeNode *node) const {
-        if(node->token->getType()==TokenType::Number)
+    double Calculator::calculateNode(const TreeNode *node) const
+    {
+        if (node->token->getType() == TokenType::Number)
             return node->token->getNumber();
 
         auto lResult = calculateNode(node->left);
         auto rResult = calculateNode(node->right);
 
-        switch (node->token->getOperator().type )
-        {
+        switch (node->token->getOperator().type) {
             case OperatorType::Plus:
                 return lResult + rResult;
             case OperatorType::Minus:
@@ -27,6 +26,8 @@ namespace detail{
                 return lResult * rResult;
             case OperatorType::Divide:
                 return lResult / rResult;
+            case OperatorType::Exponentiation:
+                return pow(lResult, rResult);
         }
     }
 

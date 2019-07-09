@@ -19,25 +19,25 @@ namespace detail {
         Minus = '-',
         Multiple = '*',
         Divide = '/',
+        Exponentiation
     };
 
-    inline int OperatorPriority(OperatorType operatorType)
-    {
-        switch (operatorType)
-        {
+    inline int OperatorPriority(OperatorType operatorType) {
+        switch (operatorType) {
             case OperatorType::Plus:
             case OperatorType::Minus:
                 return 1;
             case OperatorType::Multiple:
             case OperatorType::Divide:
                 return 2;
+            case OperatorType::Exponentiation:
+                return 3;
             default:
                 throw std::logic_error("Invalid operator type.");
         }
     }
 
-    struct Operator
-    {
+    struct Operator {
         OperatorType type;
         int priority;
 

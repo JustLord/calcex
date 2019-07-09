@@ -7,16 +7,19 @@
 
 #include "Parser.h"
 
-namespace detail
-{
-    class Calculator {
+namespace detail {
+    class Calculator
+    {
     public:
         Calculator(const TreeNode *root);
+
         void calculate() const;
+
     private:
-        double calculateNode(const TreeNode * node) const;
+        double calculateNode(const TreeNode *node) const;
+
     private:
-        const TreeNode * _root;
+        const TreeNode *_root;
     };
 
 

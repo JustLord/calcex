@@ -8,14 +8,15 @@
 #include <string>
 #include <vector>
 #include "Token.h"
+#include "TokenizerInterface.h"
 
 
 namespace detail {
-    class Tokenizer {
+    class Tokenizer : public TokenizerInterface{
     public:
         Tokenizer(std::string && input) : _raw{input} {}
 
-        std::vector<Token> tokenize();
+        std::vector<Token> tokenize() override;
 
     private:
         std::string _raw;

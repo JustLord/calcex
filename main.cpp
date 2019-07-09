@@ -1,10 +1,11 @@
 #include <iostream>
 
-#include "detail/Tokenizer.h"
+#include "detail/tokenizer/Tokenizer.h"
 #include "detail/Parser.h"
 #include "detail/Calculator.h"
+#include "detail/tokenizer/AutomaticTokenizer.h"
 
-using  namespace detail;
+using namespace detail;
 
 int main()
 {
@@ -12,7 +13,7 @@ int main()
 
     std::cin.getline(buffer, 100);
 
-    auto tokens = Tokenizer(buffer).tokenize();
+    auto tokens = AutomaticTokenizer(buffer).tokenize();
     auto tree = Parser(tokens).parse();
     Calculator(tree).calculate();
     return 0;

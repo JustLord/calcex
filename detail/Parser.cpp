@@ -9,7 +9,8 @@
 
 namespace detail {
 
-    TreeNode *Parser::parse() const {
+    TreeNode *Parser::parse() const
+    {
         TreeNode *root = nullptr;
 
         std::stack<TreeNode *> operatorsStack;
