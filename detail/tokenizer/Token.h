@@ -23,7 +23,7 @@ enum class OperatorType : char
     Divide = '/',
     Exponentiation,
     OpeningBracket = '(',
-    ClossingBracket = ')',
+    ClosingBracket = ')',
 };
 
 inline int OperatorPriority(OperatorType operatorType)
@@ -31,7 +31,7 @@ inline int OperatorPriority(OperatorType operatorType)
     switch (operatorType)
     {
     case OperatorType::OpeningBracket:
-    case OperatorType::ClossingBracket:
+    case OperatorType::ClosingBracket:
         return 0;
     case OperatorType::Plus:
     case OperatorType::Minus:

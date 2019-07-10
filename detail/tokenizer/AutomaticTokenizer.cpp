@@ -70,7 +70,7 @@ std::optional<OperatorType> AutomaticTokenizer::isOperator(char ch)
     case OperatorType::Multiple:
     case OperatorType::Divide:
     case OperatorType::OpeningBracket:
-    case OperatorType::ClossingBracket:
+    case OperatorType::ClosingBracket:
         return o;
     default:
         return {};
