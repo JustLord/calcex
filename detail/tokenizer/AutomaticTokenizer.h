@@ -18,8 +18,7 @@ namespace detail {
         std::vector<Token> tokenize() override;
 
     private:
-        bool isOperator(char ch);
-        std::optional<OperatorType> getOperator(const std::string & str) const;
+        std::optional<OperatorType> isOperator(char ch);
 
     private:
         enum class AutomaticState {

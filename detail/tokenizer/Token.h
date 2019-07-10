@@ -9,21 +9,30 @@
 
 namespace detail {
 
-    enum class TokenType {
+    enum class TokenType
+    {
         Operator,
         Number,
     };
 
-    enum class OperatorType : char {
+    enum class OperatorType : char
+    {
         Plus = '+',
         Minus = '-',
         Multiple = '*',
         Divide = '/',
-        Exponentiation
+        Exponentiation,
+        OpeningBracket = '(',
+        ClossingBracket = ')',
     };
 
-    inline int OperatorPriority(OperatorType operatorType) {
-        switch (operatorType) {
+    inline int OperatorPriority(OperatorType operatorType)
+    {
+        switch (operatorType)
+        {
+            case OperatorType::OpeningBracket:
+            case OperatorType::ClossingBracket:
+                return 0;
             case OperatorType::Plus:
             case OperatorType::Minus:
                 return 1;
@@ -37,7 +46,8 @@ namespace detail {
         }
     }
 
-    struct Operator {
+    struct Operator
+    {
         OperatorType type;
         int priority;
 
@@ -47,7 +57,8 @@ namespace detail {
     inline Operator::Operator(OperatorType t) : type{t}, priority{OperatorPriority(t)} {}
 
 
-    class Token {
+    class Token
+    {
     public:
         explicit Token(double value);
 
@@ -57,11 +68,14 @@ namespace detail {
 
         double getNumber() const;
 
-        Operator getOperator() const;
+        const Operator &getOperator() const;
+
+        Operator &getOperator();
 
     private:
         TokenType _type;
-        union {
+        union
+        {
             double _number;
             Operator _operator;
         };
@@ -73,7 +87,9 @@ namespace detail {
 
     inline TokenType Token::getType() const { return _type; }
 
-    inline Operator Token::getOperator() const { return _operator; }
+    inline const Operator &Token::getOperator() const { return _operator; }
+
+    inline Operator &Token::getOperator() { return _operator; }
 
     inline double Token::getNumber() const { return _number; }
 

@@ -16,47 +16,82 @@ namespace detail {
         std::stack<TreeNode *> operatorsStack;
         std::stack<TreeNode *> operandsStack;
 
-        for (auto &token : _tokens) {
+        for (auto &token : _tokens)
+        {
             auto node = new TreeNode(&token);
 
-            if (!root) {
-                if (token.getType() == TokenType::Operator)
-                    throw std::logic_error("Operand was expected");
-
-                root = node;
-                continue;
-            }
-
-            if (root->token->getType() != TokenType::Operator) {
-                if (token.getType() != TokenType::Operator)
-                    throw std::logic_error("Operator was expected");
-
-                node->left = root;
-                root = node;
-
-                operatorsStack.push(node);
-                continue;
-            }
-
-            if (token.getType() != TokenType::Operator) {
-                if (operatorsStack.top()->right)
-                    throw std::logic_error("Operator was expected");
-
-                operatorsStack.top()->right = node;
+            if (token.getType() != TokenType::Operator)
+            {
+                if (operatorsStack.empty())
+                {
+                    operandsStack.push(node);
+                } else
+                {
+                    ((TreeNode *) operatorsStack.top())->right = node;
+                }
 
                 continue;
             }
 
-            if (token.getType() == TokenType::Operator) {
+            if (token.getType() == TokenType::Operator)
+            {
+                if (!root)
+                {
+                    operatorsStack.push(node);
+                    root = node;
+                    continue;
+                }
+
+                if (token.getOperator().type == OperatorType::OpeningBracket)
+                {
+                    operatorsStack.top()->right = node;
+                    operatorsStack.push(node);
+
+                    continue;
+                }
+
+                if (!operandsStack.empty())
+                {
+                    node->left = operandsStack.top();
+                    operandsStack.pop();
+                }
+
+                if (token.getOperator().type == OperatorType::ClossingBracket)
+                {
+                    while (!operatorsStack.empty() && ((TreeNode *) operatorsStack.top())->token->getOperator().type !=
+                                                      OperatorType::OpeningBracket)
+                        operatorsStack.pop();
+
+                    if (operatorsStack.empty())
+                        throw std::logic_error("Opening bracket was expected");
+
+                    auto bracket = operatorsStack.top();
+
+                    operatorsStack.pop();
+
+                    if (!operatorsStack.empty())
+                        ((TreeNode *) operatorsStack.top())->right = bracket->right;
+                    else
+                        root = bracket->right;
+
+                    delete bracket;
+                    delete node;
+
+                    continue;
+                }
+
                 while (token.getOperator().priority < operatorsStack.top()->token->getOperator().priority &&
-                       !operatorsStack.empty()) {
+                       !operatorsStack.empty())
+                {
                     operatorsStack.pop();
                 }
 
-                if (!operatorsStack.empty()) {
+                if (!operatorsStack.empty())
+                {
                     node->left = operatorsStack.top()->right;
                     operatorsStack.top()->right = node;
-                } else {
+                } else
+                {
                     node->left = root;
                     root = node;
                 }
