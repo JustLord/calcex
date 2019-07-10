@@ -80,8 +80,7 @@ namespace detail {
                     continue;
                 }
 
-                while (token.getOperator().priority < operatorsStack.top()->token->getOperator().priority &&
-                       !operatorsStack.empty())
+                while (!operatorsStack.empty() && token.getOperator().priority < operatorsStack.top()->token->getOperator().priority)
                 {
                     operatorsStack.pop();
                 }
