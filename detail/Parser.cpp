@@ -2,103 +2,101 @@
 // Created by nikita on 7/4/19.
 //
 
-#include <stdexcept>
 #include "Parser.h"
-#include <stdexcept>
 #include <stack>
+#include <stdexcept>
 
 namespace detail {
 
-    TreeNode *Parser::parse() const
+TreeNode *Parser::parse() const
+{
+    TreeNode *root = nullptr;
+
+    std::stack<TreeNode *> operatorsStack;
+    std::stack<TreeNode *> operandsStack;
+
+    for (auto &token : _tokens)
     {
-        TreeNode *root = nullptr;
+        auto node = new TreeNode(&token);
 
-        std::stack<TreeNode *> operatorsStack;
-        std::stack<TreeNode *> operandsStack;
-
-        for (auto &token : _tokens)
+        if (token.getType() != TokenType::Operator)
         {
-            auto node = new TreeNode(&token);
-
-            if (token.getType() != TokenType::Operator)
+            if (operatorsStack.empty())
             {
-                if (operatorsStack.empty())
-                {
-                    operandsStack.push(node);
-                } else
-                {
-                    ((TreeNode *) operatorsStack.top())->right = node;
-                }
+                operandsStack.push(node);
+            }
+            else
+            {
+                operatorsStack.top()->right = node;
+            }
+
+            continue;
+        }
+
+        if (token.getType() == TokenType::Operator)
+        {
+            if (!root)
+            {
+                operatorsStack.push(node);
+                root = node;
+                continue;
+            }
+
+            if (token.getOperator().type == OperatorType::OpeningBracket)
+            {
+                operatorsStack.top()->right = node;
+                operatorsStack.push(node);
 
                 continue;
             }
 
-            if (token.getType() == TokenType::Operator)
+            if (!operandsStack.empty())
             {
-                if (!root)
-                {
-                    operatorsStack.push(node);
-                    root = node;
-                    continue;
-                }
+                node->left = operandsStack.top();
+                operandsStack.pop();
+            }
 
-                if (token.getOperator().type == OperatorType::OpeningBracket)
-                {
-                    operatorsStack.top()->right = node;
-                    operatorsStack.push(node);
-
-                    continue;
-                }
-
-                if (!operandsStack.empty())
-                {
-                    node->left = operandsStack.top();
-                    operandsStack.pop();
-                }
-
-                if (token.getOperator().type == OperatorType::ClossingBracket)
-                {
-                    while (!operatorsStack.empty() && ((TreeNode *) operatorsStack.top())->token->getOperator().type !=
-                                                      OperatorType::OpeningBracket)
-                        operatorsStack.pop();
-
-                    if (operatorsStack.empty())
-                        throw std::logic_error("Opening bracket was expected");
-
-                    auto bracket = operatorsStack.top();
-
+            if (token.getOperator().type == OperatorType::ClossingBracket)
+            {
+                while (!operatorsStack.empty() && operatorsStack.top()->token->getOperator().type != OperatorType::OpeningBracket)
                     operatorsStack.pop();
 
-                    if (!operatorsStack.empty())
-                        ((TreeNode *) operatorsStack.top())->right = bracket->right;
-                    else
-                        root = bracket->right;
+                if (operatorsStack.empty())
+                    throw std::logic_error("Opening bracket was expected");
 
-                    delete bracket;
-                    delete node;
+                auto bracket = operatorsStack.top();
 
-                    continue;
-                }
-
-                while (!operatorsStack.empty() && token.getOperator().priority < operatorsStack.top()->token->getOperator().priority)
-                {
-                    operatorsStack.pop();
-                }
+                operatorsStack.pop();
 
                 if (!operatorsStack.empty())
-                {
-                    node->left = operatorsStack.top()->right;
-                    operatorsStack.top()->right = node;
-                } else
-                {
-                    node->left = root;
-                    root = node;
-                }
+                    operatorsStack.top()->right = bracket->right;
+                else
+                    root = bracket->right;
 
-                operatorsStack.push(node);
+                delete bracket;
+                delete node;
+
+                continue;
             }
-        }
-        return root;
-    }
 
+            while (!operatorsStack.empty() && token.getOperator().priority < operatorsStack.top()->token->getOperator().priority)
+                operatorsStack.pop();
+
+            if (!operatorsStack.empty())
+            {
+                node->left = operatorsStack.top()->right;
+                operatorsStack.top()->right = node;
+            }
+            else
+            {
+                node->left = root;
+                root = node;
+            }
+
+            operatorsStack.push(node);
+        }
+    }
+    return root;
 }
+
+} // namespace detail

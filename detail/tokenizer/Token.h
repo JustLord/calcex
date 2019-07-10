@@ -9,90 +9,89 @@
 
 namespace detail {
 
-    enum class TokenType
-    {
-        Operator,
-        Number,
-    };
+enum class TokenType
+{
+    Operator,
+    Number,
+};
 
-    enum class OperatorType : char
-    {
-        Plus = '+',
-        Minus = '-',
-        Multiple = '*',
-        Divide = '/',
-        Exponentiation,
-        OpeningBracket = '(',
-        ClossingBracket = ')',
-    };
+enum class OperatorType : char
+{
+    Plus = '+',
+    Minus = '-',
+    Multiple = '*',
+    Divide = '/',
+    Exponentiation,
+    OpeningBracket = '(',
+    ClossingBracket = ')',
+};
 
-    inline int OperatorPriority(OperatorType operatorType)
+inline int OperatorPriority(OperatorType operatorType)
+{
+    switch (operatorType)
     {
-        switch (operatorType)
-        {
-            case OperatorType::OpeningBracket:
-            case OperatorType::ClossingBracket:
-                return 0;
-            case OperatorType::Plus:
-            case OperatorType::Minus:
-                return 1;
-            case OperatorType::Multiple:
-            case OperatorType::Divide:
-                return 2;
-            case OperatorType::Exponentiation:
-                return 3;
-            default:
-                throw std::logic_error("Invalid operator type.");
-        }
+    case OperatorType::OpeningBracket:
+    case OperatorType::ClossingBracket:
+        return 0;
+    case OperatorType::Plus:
+    case OperatorType::Minus:
+        return 1;
+    case OperatorType::Multiple:
+    case OperatorType::Divide:
+        return 2;
+    case OperatorType::Exponentiation:
+        return 3;
+    default:
+        throw std::logic_error("Invalid operator type.");
     }
-
-    struct Operator
-    {
-        OperatorType type;
-        int priority;
-
-        Operator(OperatorType t);
-    };
-
-    inline Operator::Operator(OperatorType t) : type{t}, priority{OperatorPriority(t)} {}
-
-
-    class Token
-    {
-    public:
-        explicit Token(double value);
-
-        explicit Token(Operator o);
-
-        TokenType getType() const;
-
-        double getNumber() const;
-
-        const Operator &getOperator() const;
-
-        Operator &getOperator();
-
-    private:
-        TokenType _type;
-        union
-        {
-            double _number;
-            Operator _operator;
-        };
-    };
-
-    inline Token::Token(double value) : _type{TokenType::Number}, _number{value} {}
-
-    inline Token::Token(Operator o) : _type{TokenType::Operator}, _operator{o} {}
-
-    inline TokenType Token::getType() const { return _type; }
-
-    inline const Operator &Token::getOperator() const { return _operator; }
-
-    inline Operator &Token::getOperator() { return _operator; }
-
-    inline double Token::getNumber() const { return _number; }
-
 }
+
+struct Operator
+{
+    OperatorType type;
+    int priority;
+
+    Operator(OperatorType t);
+};
+
+inline Operator::Operator(OperatorType t) : type{t}, priority{OperatorPriority(t)} {}
+
+class Token
+{
+public:
+    explicit Token(double value);
+
+    explicit Token(Operator o);
+
+    TokenType getType() const;
+
+    double getNumber() const;
+
+    const Operator &getOperator() const;
+
+    Operator &getOperator();
+
+private:
+    TokenType _type;
+    union
+    {
+        double _number;
+        Operator _operator;
+    };
+};
+
+inline Token::Token(double value) : _type{TokenType::Number}, _number{value} {}
+
+inline Token::Token(Operator o) : _type{TokenType::Operator}, _operator{o} {}
+
+inline TokenType Token::getType() const { return _type; }
+
+inline const Operator &Token::getOperator() const { return _operator; }
+
+inline Operator &Token::getOperator() { return _operator; }
+
+inline double Token::getNumber() const { return _number; }
+
+} // namespace detail
 
 #endif //CALCEX_TOKEN_H

@@ -5,10 +5,11 @@
 #ifndef CALCEX_TOKENIZER_INTERFACE_H
 #define CALCEX_TOKENIZER_INTERFACE_H
 
-#include <vector>
 #include "Token.h"
+#include <vector>
 
-class TokenizerInterface {
+class TokenizerInterface
+{
 public:
     virtual std::vector<detail::Token> tokenize() = 0;
 };

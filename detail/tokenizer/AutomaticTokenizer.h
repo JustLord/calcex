@@ -11,28 +11,30 @@
 #include <optional>
 
 namespace detail {
-    class AutomaticTokenizer : public TokenizerInterface {
-    public:
-        AutomaticTokenizer(std::string str);
 
-        std::vector<Token> tokenize() override;
+class AutomaticTokenizer : public TokenizerInterface
+{
+public:
+    AutomaticTokenizer(std::string str);
+    std::vector<Token> tokenize() override;
 
-    private:
-        std::optional<OperatorType> isOperator(char ch);
+private:
+    std::optional<OperatorType> isOperator(char ch);
 
-    private:
-        enum class AutomaticState {
-            Scan,
-            ReadingNumber,
-            ReadingOperator,
-        };
-
-        std::string _raw;
-        AutomaticState _state;
+private:
+    enum class State
+    {
+        Scan,
+        ReadingNumber,
+        ReadingOperator,
     };
 
-    inline AutomaticTokenizer::AutomaticTokenizer(std::string str) : _raw{std::move(str)} {}
-}
+    std::string _raw;
+    State _state;
+};
 
+inline AutomaticTokenizer::AutomaticTokenizer(std::string str) : _raw{std::move(str)}, _state{AutomaticTokenizer::State::Scan} {}
+
+} // namespace detail
 
 #endif //CALCEX_AUTOMATICTOKENIZER_H

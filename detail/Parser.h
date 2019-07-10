@@ -5,38 +5,40 @@
 #ifndef CALCEX_PARSER_H
 #define CALCEX_PARSER_H
 
-
-#include <vector>
 #include "tokenizer/Token.h"
+#include <vector>
 
 namespace detail {
-    struct TreeNode
-    {
-        TreeNode *left;
-        TreeNode *right;
 
-        const Token *token;
+struct TreeNode
+{
+    TreeNode *left;
+    TreeNode *right;
 
-        TreeNode(const Token *d);
-    };
+    const Token *token;
 
-    inline TreeNode::TreeNode(const detail::Token *d) :token{d}, left{}, right{} {}
+    TreeNode(const Token *d);
+};
 
+inline TreeNode::TreeNode(const detail::Token *d)
+    : token{d}, left{}, right{}
+{}
 
-    class Parser {
-    public:
-        Parser(const std::vector<Token> &tokens);
+class Parser
+{
+public:
+    Parser(const std::vector<Token> &tokens);
 
-        TreeNode * parse() const;
+    TreeNode *parse() const;
 
-    private:
-        const std::vector<Token> &_tokens;
-    };
+private:
+    const std::vector<Token> &_tokens;
+};
 
-    inline Parser::Parser(const std::vector<detail::Token> &tokens) :_tokens{tokens} {}
+inline Parser::Parser(const std::vector<detail::Token> &tokens)
+    : _tokens{tokens}
+{}
 
-}
-
-
+} // namespace detail
 
 #endif //CALCEX_PARSER_H

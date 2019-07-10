@@ -8,23 +8,22 @@
 #include "Parser.h"
 
 namespace detail {
-    class Calculator
-    {
-    public:
-        Calculator(const TreeNode *root);
+class Calculator
+{
+public:
+    Calculator(const TreeNode *root);
 
-        void calculate() const;
+    void calculate() const;
 
-    private:
-        double calculateNode(const TreeNode *node) const;
+private:
+    double calculateNode(const TreeNode *node) const;
 
-    private:
-        const TreeNode *_root;
-    };
+private:
+    const TreeNode *_root;
+};
 
+inline Calculator::Calculator(const TreeNode *root) : _root{root} {}
 
-    inline Calculator::Calculator(const TreeNode *root) : _root{root} {}
-
-}
+} // namespace detail
 
 #endif //CALCEX_CALCULATOR_H
