@@ -46,10 +46,20 @@ std::vector<Token> AutomaticTokenizer::tokenize()
 
             if (auto op = isOperator(_raw[i]))
             {
-                if (op.value() == OperatorType::Multiple && output.back().getType() == TokenType::Operator && output.back().getOperator().type == OperatorType::Multiple)
+                //TODO there must be a better way
+                if (op.value() == OperatorType::Minus && (output.empty() || output.back().getType() == TokenType::Operator))
+                {
+                    _state = State::ReadingNumber;
+                    tokenStart = i;
+                }
+                else if (op.value() == OperatorType::Multiple && output.back().getType() == TokenType::Operator && output.back().getOperator().type == OperatorType::Multiple)
+                {
                     output.back().getOperator().type = OperatorType::Exponentiation;
+                }
                 else
+                {
                     output.emplace_back(op.value());
+                }
             }
             else
             {

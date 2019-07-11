@@ -26,6 +26,7 @@ BraceWrapping:
   BeforeCatch: true
   BeforeElse: true
   SplitEmptyFunction: false
+  SplitEmptyRecord: false
 BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Custom
 ColumnLimit: 0

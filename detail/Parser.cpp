@@ -96,6 +96,8 @@ void Parser::parseClosingBracket(const Token &token)
     else
         _root = bracket->right;
 
+	bracket->left = nullptr;
+    bracket->right = nullptr;
     delete bracket;
 }
 void Parser::parseOpeningBracket(const Token &token)
