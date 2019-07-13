@@ -7,7 +7,7 @@
 #include <iostream>
 
 namespace detail {
-void Calculator::calculate() const { std::cout << calculateNode(_root); }
+void Calculator::calculate() const { std::cout << calculateNode(_root)  << std::endl; }
 
 double Calculator::calculateNode(const TreeNode *node) const
 {
@@ -30,6 +30,7 @@ double Calculator::calculateNode(const TreeNode *node) const
     case OperatorType::Exponentiation:
         return pow(lResult, rResult);
     }
+    return 0;
 }
 
 } // namespace detail

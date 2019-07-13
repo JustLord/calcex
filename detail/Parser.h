@@ -44,7 +44,6 @@ private:
 
     TreeNode *_root;
     std::stack<TreeNode *> _operators;
-    std::stack<TreeNode *> _operands;
 };
 
 inline Parser::Parser(const std::vector<detail::Token> &tokens)

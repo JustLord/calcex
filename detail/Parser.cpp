@@ -25,7 +25,7 @@ void Parser::parseOperand(const Token &token)
     auto node = new TreeNode(&token);
 
     if (!_root)
-        _operands.push(node);
+        _root = node;
     else
         _operators.top()->right = node;
 }
@@ -70,12 +70,6 @@ void Parser::parseArithmetic(const Token &token)
             _root = node;
         }
     }
-    else if (!_operands.empty())
-    {
-        node->left = _operands.top();
-        _operands.pop();
-        _root = node;
-    }
 
     _operators.push(node);
 }
@@ -105,6 +99,7 @@ void Parser::parseOpeningBracket(const Token &token)
         _operators.top()->right = node;
     else
         _root = node;
+
     _operators.push(node);
 }
 
