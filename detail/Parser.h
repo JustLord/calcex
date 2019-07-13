@@ -19,11 +19,18 @@ struct TreeNode
     const Token *token;
 
     TreeNode(const Token *d);
+    ~TreeNode();
 };
 
 inline TreeNode::TreeNode(const detail::Token *d)
     : token{d}, left{}, right{}
 {}
+
+inline TreeNode::~TreeNode()
+{
+    if (left) delete left;
+    if (right) delete right;
+}
 
 class Parser
 {

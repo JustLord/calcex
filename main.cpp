@@ -15,5 +15,6 @@ int main()
     auto tokens = AutomaticTokenizer(buffer).tokenize();
     auto tree = Parser(tokens).parse();
     Calculator(tree).calculate();
+    delete tree;
     return 0;
 }
