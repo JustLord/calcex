@@ -5,52 +5,20 @@
 #ifndef CALCEX_PARSER_H
 #define CALCEX_PARSER_H
 
+#include "Tree.h"
 #include "tokenizer/Token.h"
+#include <memory>
 #include <stack>
 #include <vector>
 
 namespace detail {
-
-struct TreeItem
-{
-    TokenType token;
-    union
-    {
-        double value;
-        double * variable;
-        Operator _operator;
-    };
-};
-
-struct TreeNode
-{
-    TreeNode *left;
-    TreeNode *right;
-
-    TreeItem value;
-
-    TreeNode(TreeItem && v);
-    ~TreeNode();
-};
-
-inline TreeNode::TreeNode(const detail::Token *d)
-    : left{}, right{}
-{
-
-}
-
-inline TreeNode::~TreeNode()
-{
-    if (left) delete left;
-    if (right) delete right;
-}
 
 class Parser
 {
 public:
     Parser(const std::vector<Token> &tokens);
 
-    TreeNode *parse();
+    TreeNode parse();
 
 private:
     void parseOperand(const Token &token);

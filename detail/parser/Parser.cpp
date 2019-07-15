@@ -22,7 +22,7 @@ TreeNode *Parser::parse()
 }
 void Parser::parseOperand(const Token &token)
 {
-    auto node = new TreeNode(&token);
+    auto node = new TreeNode(TreeItem &token);
 
     if (!_root)
         _root = node;
