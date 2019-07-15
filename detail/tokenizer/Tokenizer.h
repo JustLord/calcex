@@ -12,20 +12,21 @@
 
 namespace detail {
 
-class AutomaticTokenizer : public TokenizerInterface
+class Tokenizer : public TokenizerInterface
 {
 public:
-    AutomaticTokenizer(std::string str);
+    Tokenizer(std::string str);
     std::vector<Token> tokenize() override;
 
 private:
-    std::optional<OperatorType> isOperator(char ch);
+    std::optional<Operator> getOperator(char ch);
 
 private:
     enum class State
     {
         Scan,
         ReadingNumber,
+        ReadingVariable,
         ReadingOperator,
     };
 
@@ -33,7 +34,7 @@ private:
     State _state;
 };
 
-inline AutomaticTokenizer::AutomaticTokenizer(std::string str) : _raw{std::move(str)}, _state{AutomaticTokenizer::State::Scan} {}
+inline Tokenizer::Tokenizer(std::string str) : _raw{std::move(str)}, _state{Tokenizer::State::Scan} {}
 
 } // namespace detail
 

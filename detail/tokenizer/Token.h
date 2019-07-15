@@ -5,6 +5,7 @@
 #ifndef CALCEX_TOKEN_H
 #define CALCEX_TOKEN_H
 
+#include <cstring>
 #include <stdexcept>
 
 namespace detail {
@@ -13,9 +14,10 @@ enum class TokenType
 {
     Operator,
     Number,
+    Variable,
 };
 
-enum class OperatorType : char
+enum class Operator : char
 {
     Plus = '+',
     Minus = '-',
@@ -24,73 +26,81 @@ enum class OperatorType : char
     Exponentiation,
     OpeningBracket = '(',
     ClosingBracket = ')',
+    Equate = '=',
 };
 
-inline int OperatorPriority(OperatorType operatorType)
+inline int OperatorPriority(Operator operatorType)
 {
     switch (operatorType)
     {
-    case OperatorType::OpeningBracket:
-    case OperatorType::ClosingBracket:
-        return 0;
-    case OperatorType::Plus:
-    case OperatorType::Minus:
+    case Operator::Exponentiation:
         return 1;
-    case OperatorType::Multiple:
-    case OperatorType::Divide:
+    case Operator::Multiple:
+    case Operator::Divide:
         return 2;
-    case OperatorType::Exponentiation:
+    case Operator::Plus:
+    case Operator::Minus:
         return 3;
+    case Operator::OpeningBracket:
+    case Operator::ClosingBracket:
+        return 4;
+    case Operator::Equate:
+        return 5;
+
     default:
-        throw std::logic_error("Invalid operator type.");
+        throw std::logic_error("Invalid operator.");
     }
 }
-
-struct Operator
-{
-    OperatorType type;
-    int priority;
-
-    Operator(OperatorType t);
-};
-
-inline Operator::Operator(OperatorType t) : type{t}, priority{OperatorPriority(t)} {}
 
 class Token
 {
 public:
+    Token(Token &&other);
     explicit Token(double value);
-
     explicit Token(Operator o);
+    explicit Token(std::string &&variable);
+    ~Token();
 
     TokenType getType() const;
-
-    double getNumber() const;
-
-    const Operator &getOperator() const;
-
-    Operator &getOperator();
+    double getValue() const;
+    Operator getOperator() const;
+    void setOperator(Operator o);
+    const char *getVariable() const;
 
 private:
     TokenType _type;
     union
     {
-        double _number;
+        double _value;
         Operator _operator;
+        char *_variable;
     };
 };
 
-inline Token::Token(double value) : _type{TokenType::Number}, _number{value} {}
-
+inline Token::Token(Token &&other) : _type{other._type}
+{
+    _value = other._value;
+    if (_type == TokenType::Variable)
+        other._variable = nullptr;
+}
+inline Token::Token(double value) : _type{TokenType::Number}, _value{value} {}
 inline Token::Token(Operator o) : _type{TokenType::Operator}, _operator{o} {}
+inline Token::Token(std::string &&variable) : _type{TokenType::Variable}
+{
+    _variable = new char[variable.size() + 1];
+    strncpy(_variable, variable.c_str(), variable.size());
+}
+inline Token::~Token()
+{
+    if (_type == TokenType::Variable && _variable)
+        delete[] _variable;
+}
 
 inline TokenType Token::getType() const { return _type; }
-
-inline const Operator &Token::getOperator() const { return _operator; }
-
-inline Operator &Token::getOperator() { return _operator; }
-
-inline double Token::getNumber() const { return _number; }
+inline Operator Token::getOperator() const { return _operator; }
+inline double Token::getValue() const { return _value; }
+inline const char *Token::getVariable() const { return _variable; }
+inline void Token::setOperator(Operator o) { _operator = o; }
 
 } // namespace detail
 

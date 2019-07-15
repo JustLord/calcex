@@ -11,20 +11,33 @@
 
 namespace detail {
 
+struct TreeItem
+{
+    TokenType token;
+    union
+    {
+        double value;
+        double * variable;
+        Operator _operator;
+    };
+};
+
 struct TreeNode
 {
     TreeNode *left;
     TreeNode *right;
 
-    const Token *token;
+    TreeItem value;
 
-    TreeNode(const Token *d);
+    TreeNode(TreeItem && v);
     ~TreeNode();
 };
 
 inline TreeNode::TreeNode(const detail::Token *d)
-    : token{d}, left{}, right{}
-{}
+    : left{}, right{}
+{
+
+}
 
 inline TreeNode::~TreeNode()
 {

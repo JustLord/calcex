@@ -32,19 +32,20 @@ void Parser::parseOperand(const Token &token)
 
 void Parser::parseOperator(const Token &token)
 {
-    switch (token.getOperator().type)
+    switch (token.getOperator())
     {
-    case OperatorType::OpeningBracket:
+    case Operator::OpeningBracket:
         parseOpeningBracket(token);
         break;
-    case OperatorType::ClosingBracket:
+    case Operator::ClosingBracket:
         parseClosingBracket(token);
         break;
-    case OperatorType::Plus:
-    case OperatorType::Minus:
-    case OperatorType::Multiple:
-    case OperatorType::Divide:
-    case OperatorType::Exponentiation:
+    case Operator::Plus:
+    case Operator::Minus:
+    case Operator::Multiple:
+    case Operator::Divide:
+    case Operator ::Equate:
+    case Operator::Exponentiation:
         parseArithmetic(token);
         break;
     }
@@ -56,7 +57,7 @@ void Parser::parseArithmetic(const Token &token)
 
     if (_root)
     {
-        while (!_operators.empty() && token.getOperator().priority < _operators.top()->token->getOperator().priority)
+        while (!_operators.empty() && OperatorPriority(token.getOperator()) > OperatorPriority(_operators.top()->token->getOperator()))
             _operators.pop();
 
         if (!_operators.empty())
@@ -75,7 +76,7 @@ void Parser::parseArithmetic(const Token &token)
 }
 void Parser::parseClosingBracket(const Token &token)
 {
-    while (!_operators.empty() && _operators.top()->token->getOperator().type != OperatorType::OpeningBracket)
+    while (!_operators.empty() && _operators.top()->token->getOperator() != Operator::OpeningBracket)
         _operators.pop();
 
     if (_operators.empty())

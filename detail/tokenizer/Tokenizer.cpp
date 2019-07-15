@@ -2,14 +2,14 @@
 // Created by nikita on 7/8/19.
 //
 
-#include "AutomaticTokenizer.h"
+#include "Tokenizer.h"
 #include <ctype.h>
 #include <map>
 #include <string>
 
 namespace detail {
 
-std::vector<Token> AutomaticTokenizer::tokenize()
+std::vector<Token> Tokenizer::tokenize()
 {
     _state = State::Scan;
     std::vector<Token> output;
@@ -24,7 +24,12 @@ std::vector<Token> AutomaticTokenizer::tokenize()
                 tokenStart = i;
                 _state = State::ReadingNumber;
             }
-            else if (isOperator(_raw[i]))
+            else if (isalpha(_raw[i]))
+            {
+                tokenStart = i;
+                _state = State::ReadingVariable;
+            }
+            else if (getOperator(_raw[i]))
             {
                 i--;
                 _state = State::ReadingOperator;
@@ -32,7 +37,7 @@ std::vector<Token> AutomaticTokenizer::tokenize()
         }
         else if (_state == State::ReadingNumber)
         {
-            if (i == _raw.length() || !isdigit(_raw[i]))
+            if (i == _raw.length() || !(isdigit(_raw[i]) || _raw[i] == '.'))
             {
                 output.emplace_back(std::stod(_raw.substr(tokenStart, i - tokenStart)));
                 _state = State::Scan;
@@ -44,17 +49,17 @@ std::vector<Token> AutomaticTokenizer::tokenize()
             if (i == _raw.length())
                 continue;
 
-            if (auto op = isOperator(_raw[i]))
+            if (auto op = getOperator(_raw[i]))
             {
                 //TODO there must be a better way
-                if (op.value() == OperatorType::Minus && (output.empty() || output.back().getType() == TokenType::Operator))
+                if (op.value() == Operator::Minus && (output.empty() || output.back().getType() == TokenType::Operator))
                 {
                     _state = State::ReadingNumber;
                     tokenStart = i;
                 }
-                else if (op.value() == OperatorType::Multiple && output.back().getType() == TokenType::Operator && output.back().getOperator().type == OperatorType::Multiple)
+                else if (op.value() == Operator::Multiple && output.back().getType() == TokenType::Operator && output.back().getOperator() == Operator::Multiple)
                 {
-                    output.back().getOperator().type = OperatorType::Exponentiation;
+                    output.back().setOperator(Operator::Exponentiation);
                 }
                 else
                 {
@@ -67,20 +72,30 @@ std::vector<Token> AutomaticTokenizer::tokenize()
                 i--;
             }
         }
+        else if (_state == State::ReadingVariable)
+        {
+            if (i == _raw.length() || !(isdigit(_raw[i]) || isalpha(_raw[i]) || _raw[i] == '_'))
+            {
+                output.emplace_back(_raw.substr(tokenStart, i - tokenStart));
+                _state = State::Scan;
+                i--;
+            }
+        }
     }
     return output;
 }
 
-std::optional<OperatorType> AutomaticTokenizer::isOperator(char ch)
+std::optional<Operator> Tokenizer::getOperator(char ch)
 {
-    switch (auto o = static_cast<OperatorType>(ch); o)
+    switch (auto o = static_cast<Operator>(ch); o)
     {
-    case OperatorType::Plus:
-    case OperatorType::Minus:
-    case OperatorType::Multiple:
-    case OperatorType::Divide:
-    case OperatorType::OpeningBracket:
-    case OperatorType::ClosingBracket:
+    case Operator::Plus:
+    case Operator::Minus:
+    case Operator::Multiple:
+    case Operator::Divide:
+    case Operator::OpeningBracket:
+    case Operator::ClosingBracket:
+    case Operator ::Equate:
         return o;
     default:
         return {};

@@ -6,23 +6,20 @@
 #define CALCEX_CALCULATOR_H
 
 #include "Parser.h"
+#include <map>
 
 namespace detail {
 class Calculator
 {
 public:
-    Calculator(const TreeNode *root);
-
-    void calculate() const;
+    void calculate(const TreeNode *root);
 
 private:
-    double calculateNode(const TreeNode *node) const;
+    double calculateNode(const TreeNode *node);
 
 private:
-    const TreeNode *_root;
+    std::map<std::string, double> _variables;
 };
-
-inline Calculator::Calculator(const TreeNode *root) : _root{root} {}
 
 } // namespace detail
 
