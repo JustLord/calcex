@@ -5,8 +5,8 @@
 #ifndef CALCEX_CALCULATOR_H
 #define CALCEX_CALCULATOR_H
 
-#include "Parser.h"
 #include <map>
+#include "parser/Tree.h"
 
 namespace detail {
 class Calculator
@@ -18,7 +18,7 @@ private:
     double calculateNode(const TreeNode *node);
 
 private:
-    std::map<std::string, double> _variables;
+    std::map<std::string, double *> _variablesMap;
 };
 
 } // namespace detail

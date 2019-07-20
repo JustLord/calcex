@@ -11,21 +11,29 @@ void Calculator::calculate(const TreeNode *root) { std::cout << calculateNode(ro
 
 double Calculator::calculateNode(const TreeNode *node)
 {
-    if (node->token->getType() == TokenType::Number)
-        return node->token->getValue();
+    if (node->value.token == TokenType::Number)
+        return node->value.value;
 
-    if (node->token->getType() == TokenType::Variable)
+    if (node->value.token == TokenType::Variable)
     {
-        if (auto iter = _variables.find(node->token->getVariable()); iter != _variables.end())
-            return iter->second;
+        double *  variable;
+        if(auto iterator = _variablesMap.find(node->value.variable); iterator != _variablesMap.end())
+        {
+            variable = iterator->second;
+        }
         else
-            return 0;
+        {
+            variable = new double();
+            _variablesMap[node->value.variable]  = variable;
+        }
+
+        return *variable;
     }
 
-    auto lResult = node->token->getOperator() != Operator::Equate ? calculateNode(node->left) : 0;
+    auto lResult = node->value._operator != Operator::Equate ? calculateNode(node->left) : 0;
     auto rResult = calculateNode(node->right);
 
-    switch (node->token->getOperator())
+    switch (node->value._operator)
     {
     case Operator::Plus:
         return lResult + rResult;
@@ -41,9 +49,23 @@ double Calculator::calculateNode(const TreeNode *node)
     case Operator::ClosingBracket:
         return 0;
     case Operator::Equate:
-        if (node->left->token->getType() == TokenType::Variable)
-            _variables[node->left->token->getVariable()] = rResult;
+    {
+        double *  variable;
+        if(auto iterator = _variablesMap.find(node->value.variable); iterator != _variablesMap.end())
+        {
+            variable = iterator->second;
+        }
+        else
+        {
+            variable = new double();
+            _variablesMap[std::string(node->left->value.variable)]  = variable;
+        }
+
+        if (node->left->value.token == TokenType::Variable)
+            *variable = rResult;
         return rResult;
+    }
+
     }
 }
 

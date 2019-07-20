@@ -5,11 +5,12 @@
 #ifndef CALCEX_PARSER_H
 #define CALCEX_PARSER_H
 
+#include "../tokenizer/Token.h"
 #include "Tree.h"
-#include "tokenizer/Token.h"
 #include <memory>
 #include <stack>
 #include <vector>
+#include <map>
 
 namespace detail {
 
@@ -18,11 +19,13 @@ class Parser
 public:
     Parser(const std::vector<Token> &tokens);
 
-    TreeNode parse();
+    TreeNode *parse();
 
 private:
     void parseOperand(const Token &token);
     void parseOperator(const Token &token);
+    void parseVariable(const Token &token);
+
     void parseArithmetic(const Token &token);
     void parseClosingBracket(const Token &token);
     void parseOpeningBracket(const Token &token);

@@ -5,6 +5,7 @@
 #include "Parser.h"
 #include <stack>
 #include <stdexcept>
+#include "Tree.h"
 
 namespace detail {
 
@@ -14,6 +15,8 @@ TreeNode *Parser::parse()
     {
         if (token.getType() == TokenType::Operator)
             parseOperator(token);
+        else if (token.getType() == TokenType::Variable)
+            parseVariable(token);
         else
             parseOperand(token);
     }
@@ -22,7 +25,7 @@ TreeNode *Parser::parse()
 }
 void Parser::parseOperand(const Token &token)
 {
-    auto node = new TreeNode(TreeItem &token);
+    auto node = new TreeNode(TreeItem(token.getValue()));
 
     if (!_root)
         _root = node;
@@ -53,11 +56,11 @@ void Parser::parseOperator(const Token &token)
 
 void Parser::parseArithmetic(const Token &token)
 {
-    auto node = new TreeNode(&token);
+    auto node = new TreeNode(TreeItem(token.getOperator()));
 
     if (_root)
     {
-        while (!_operators.empty() && OperatorPriority(token.getOperator()) > OperatorPriority(_operators.top()->token->getOperator()))
+        while (!_operators.empty() && OperatorPriority(token.getOperator()) > OperatorPriority(_operators.top()->value._operator))
             _operators.pop();
 
         if (!_operators.empty())
@@ -76,7 +79,7 @@ void Parser::parseArithmetic(const Token &token)
 }
 void Parser::parseClosingBracket(const Token &token)
 {
-    while (!_operators.empty() && _operators.top()->token->getOperator() != Operator::OpeningBracket)
+    while (!_operators.empty() && _operators.top()->value._operator != Operator::OpeningBracket)
         _operators.pop();
 
     if (_operators.empty())
@@ -97,13 +100,22 @@ void Parser::parseClosingBracket(const Token &token)
 }
 void Parser::parseOpeningBracket(const Token &token)
 {
-    auto node = new TreeNode(&token);
+    auto node = new TreeNode(TreeItem(token.getOperator()));
     if (!_operators.empty())
         _operators.top()->right = node;
     else
         _root = node;
 
     _operators.push(node);
+}
+void Parser::parseVariable(const Token &token)
+{
+    auto node = new TreeNode(TreeItem(token.getVariable()));
+
+    if (!_root)
+        _root = node;
+    else
+        _operators.top()->right = node;
 }
 
 } // namespace detail

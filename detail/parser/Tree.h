@@ -1,26 +1,26 @@
 #ifndef CALCEX_TREE_H
 #define CALCEX_TREE_H
 
+#include "../tokenizer/Token.h"
 namespace detail {
 
 struct TreeItem
 {
     TokenType token;
-	std::any
-	union
+    union
     {
         double value;
-        double *variable;
+        const char *variable;
         Operator _operator;
     };
 
     TreeItem(double val);
-    TreeItem(double *var);
+    TreeItem(const char *var);
     TreeItem(Operator op);
 };
 
 inline TreeItem::TreeItem(double val) : value{val}, token{TokenType::Number} {}
-inline TreeItem::TreeItem(double *var) : variable{var}, token{TokenType::Variable} {}
+inline TreeItem::TreeItem(const char *var) : variable{var}, token{TokenType::Variable} {}
 inline TreeItem::TreeItem(Operator op) : _operator{op}, token{TokenType::Operator} {}
 
 struct TreeNode
@@ -30,6 +30,7 @@ struct TreeNode
 
     TreeItem value;
 
+    TreeNode(const TreeItem &v);
     TreeNode(TreeItem &&v);
     ~TreeNode();
 };

@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "detail/Calculator.h"
-#include "detail/Parser.h"
+#include "detail/parser/Parser.h"
 #include "detail/tokenizer/Tokenizer.h"
 
 using namespace detail;
