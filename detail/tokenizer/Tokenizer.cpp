@@ -27,7 +27,7 @@ std::vector<Token> Tokenizer::tokenize()
             else if (isalpha(_raw[i]))
             {
                 tokenStart = i;
-                _state = State::ReadingVariable;
+                _state = State::ReadingSymbol;
             }
             else if (getOperator(_raw[i]))
             {
@@ -72,11 +72,16 @@ std::vector<Token> Tokenizer::tokenize()
                 i--;
             }
         }
-        else if (_state == State::ReadingVariable)
+        else if (_state == State::ReadingSymbol)
         {
             if (i == _raw.length() || !(isdigit(_raw[i]) || isalpha(_raw[i]) || _raw[i] == '_'))
             {
-                output.emplace_back(_raw.substr(tokenStart, i - tokenStart));
+                auto symbol = _raw.substr(tokenStart, i - tokenStart);
+                if(symbol == "print")
+                    output.emplace_back(Operator::Print);
+                else
+                    output.emplace_back(symbol);
+
                 _state = State::Scan;
                 i--;
             }
@@ -95,7 +100,7 @@ std::optional<Operator> Tokenizer::getOperator(char ch)
     case Operator::Divide:
     case Operator::OpeningBracket:
     case Operator::ClosingBracket:
-    case Operator ::Equate:
+    case Operator::Equate:
         return o;
     default:
         return {};

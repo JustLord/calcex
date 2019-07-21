@@ -26,7 +26,7 @@ private:
     {
         Scan,
         ReadingNumber,
-        ReadingVariable,
+        ReadingSymbol,
         ReadingOperator,
     };
 

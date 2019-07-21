@@ -14,7 +14,7 @@ enum class TokenType
 {
     Operator,
     Number,
-    Variable,
+    Symbol,
 };
 
 enum class Operator : char
@@ -27,6 +27,7 @@ enum class Operator : char
     OpeningBracket = '(',
     ClosingBracket = ')',
     Equate = '=',
+    Print,
 };
 
 inline int OperatorPriority(Operator operatorType)
@@ -46,6 +47,8 @@ inline int OperatorPriority(Operator operatorType)
         return 4;
     case Operator::Equate:
         return 5;
+    case Operator::Print:
+        return 6;
 
     default:
         throw std::logic_error("Invalid operator.");
@@ -55,10 +58,11 @@ inline int OperatorPriority(Operator operatorType)
 class Token
 {
 public:
-    Token(Token &&other);
+    Token(Token &&other) noexcept;
     explicit Token(double value);
     explicit Token(Operator o);
     explicit Token(std::string &&variable);
+    explicit Token(const std::string &variable);
     ~Token();
 
     TokenType getType() const;
@@ -77,22 +81,27 @@ private:
     };
 };
 
-inline Token::Token(Token &&other) : _type{other._type}
+inline Token::Token(Token &&other)  noexcept : _type{other._type}
 {
     _value = other._value;
-    if (_type == TokenType::Variable)
+    if (_type == TokenType::Symbol)
         other._variable = nullptr;
 }
 inline Token::Token(double value) : _type{TokenType::Number}, _value{value} {}
 inline Token::Token(Operator o) : _type{TokenType::Operator}, _operator{o} {}
-inline Token::Token(std::string &&variable) : _type{TokenType::Variable}
+inline Token::Token(const std::string & str) : _type{TokenType::Symbol}
+{
+    _variable = new char[str.size() + 1];
+    strncpy(_variable, str.c_str(), str.size());
+}
+inline Token::Token(std::string &&variable) : _type{TokenType::Symbol}
 {
     _variable = new char[variable.size() + 1];
     strncpy(_variable, variable.c_str(), variable.size());
 }
 inline Token::~Token()
 {
-    if (_type == TokenType::Variable && _variable)
+    if (_type == TokenType::Symbol && _variable)
         delete[] _variable;
 }
 

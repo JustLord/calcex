@@ -17,29 +17,21 @@ namespace detail {
 class Parser
 {
 public:
-    Parser(const std::vector<Token> &tokens);
-
-    TreeNode *parse();
+    TreeNode *parse(const std::vector<Token> &tokens);
 
 private:
-    void parseOperand(const Token &token);
-    void parseOperator(const Token &token);
-    void parseVariable(const Token &token);
+    void parseOperand(const Token &token, TreeNode **root, std::stack<TreeNode *> &operators);
+    void parseOperator(const Token &token, TreeNode **root, std::stack<TreeNode *> &operators);
+    void parseSymbol(const Token &token, TreeNode **root, std::stack<TreeNode *> &operators);
 
-    void parseArithmetic(const Token &token);
-    void parseClosingBracket(const Token &token);
-    void parseOpeningBracket(const Token &token);
+    void parseArithmetic(const Token &token, TreeNode **root, std::stack<TreeNode *> &operators);
+    void parseClosingBracket(const Token &token, TreeNode **root, std::stack<TreeNode *> &operators);
+    void parseOpeningBracket(const Token &token, TreeNode **root, std::stack<TreeNode *> &operators);
 
+    double * getOrCreateSymbol(const char * name);
 private:
-    const std::vector<Token> &_tokens;
-
-    TreeNode *_root;
-    std::stack<TreeNode *> _operators;
+    std::map<std::string, double*> _symbols;
 };
-
-inline Parser::Parser(const std::vector<detail::Token> &tokens)
-    : _tokens{tokens}, _root{nullptr}
-{}
 
 } // namespace detail
 

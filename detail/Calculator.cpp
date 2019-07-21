@@ -7,30 +7,20 @@
 #include <iostream>
 
 namespace detail {
-void Calculator::calculate(const TreeNode *root) { std::cout << calculateNode(root) << std::endl; }
+void Calculator::calculate(const TreeNode *root)
+{
+    calculateNode(root);
+}
 
 double Calculator::calculateNode(const TreeNode *node)
 {
     if (node->value.token == TokenType::Number)
         return node->value.value;
 
-    if (node->value.token == TokenType::Variable)
-    {
-        double *  variable;
-        if(auto iterator = _variablesMap.find(node->value.variable); iterator != _variablesMap.end())
-        {
-            variable = iterator->second;
-        }
-        else
-        {
-            variable = new double();
-            _variablesMap[node->value.variable]  = variable;
-        }
+    if (node->value.token == TokenType::Symbol)
+        return *node->value.variable;
 
-        return *variable;
-    }
-
-    auto lResult = node->value._operator != Operator::Equate ? calculateNode(node->left) : 0;
+    auto lResult = node->value._operator != Operator::Equate && node->value._operator != Operator::Print  ? calculateNode(node->left) : 0;
     auto rResult = calculateNode(node->right);
 
     switch (node->value._operator)
@@ -50,22 +40,14 @@ double Calculator::calculateNode(const TreeNode *node)
         return 0;
     case Operator::Equate:
     {
-        double *  variable;
-        if(auto iterator = _variablesMap.find(node->value.variable); iterator != _variablesMap.end())
-        {
-            variable = iterator->second;
-        }
-        else
-        {
-            variable = new double();
-            _variablesMap[std::string(node->left->value.variable)]  = variable;
-        }
+        if (node->left->value.token == TokenType::Symbol)
+            *node->left->value.variable = rResult;
 
-        if (node->left->value.token == TokenType::Variable)
-            *variable = rResult;
         return rResult;
     }
-
+    case Operator::Print:
+        std::cout << rResult << std::endl;
+        return 0;
     }
 }
 

@@ -10,17 +10,17 @@ struct TreeItem
     union
     {
         double value;
-        const char *variable;
+        double *variable;
         Operator _operator;
     };
 
     TreeItem(double val);
-    TreeItem(const char *var);
+    TreeItem(double *var);
     TreeItem(Operator op);
 };
 
 inline TreeItem::TreeItem(double val) : value{val}, token{TokenType::Number} {}
-inline TreeItem::TreeItem(const char *var) : variable{var}, token{TokenType::Variable} {}
+inline TreeItem::TreeItem(double *var) : variable{var}, token{TokenType::Symbol} {}
 inline TreeItem::TreeItem(Operator op) : _operator{op}, token{TokenType::Operator} {}
 
 struct TreeNode
@@ -41,8 +41,8 @@ inline TreeNode::TreeNode(TreeItem &&v)
 
 inline TreeNode::~TreeNode()
 {
-    if (left) delete left;
-    if (right) delete right;
+    delete left;
+    delete right;
 }
 
 } // namespace detail

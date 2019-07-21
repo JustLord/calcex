@@ -10,13 +10,13 @@ int main()
 {
     char buffer[100];
     Calculator calculator;
-
+    Parser parser;
 
     while (true)
     {
         std::cin.getline(buffer, 100);
         auto tokens = Tokenizer(buffer).tokenize();
-        auto tree = Parser(tokens).parse();
+        auto tree = parser.parse(tokens);
         calculator.calculate(tree);
         delete tree;
     }

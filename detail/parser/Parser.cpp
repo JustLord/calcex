@@ -3,119 +3,134 @@
 //
 
 #include "Parser.h"
+#include "Tree.h"
 #include <stack>
 #include <stdexcept>
-#include "Tree.h"
 
 namespace detail {
 
-TreeNode *Parser::parse()
+TreeNode *Parser::parse(const std::vector<Token> &tokens)
 {
-    for (auto &token : _tokens)
+    TreeNode *root = nullptr;
+    std::stack<TreeNode *> operators;
+
+    for (auto &token : tokens)
     {
         if (token.getType() == TokenType::Operator)
-            parseOperator(token);
-        else if (token.getType() == TokenType::Variable)
-            parseVariable(token);
+            parseOperator(token, &root, operators);
+        else if (token.getType() == TokenType::Symbol)
+            parseSymbol(token, &root, operators);
         else
-            parseOperand(token);
+            parseOperand(token, &root, operators);
     }
 
-    return _root;
+    return root;
 }
-void Parser::parseOperand(const Token &token)
+void Parser::parseOperand(const Token &token, TreeNode **root, std::stack<TreeNode *> &operators)
 {
     auto node = new TreeNode(TreeItem(token.getValue()));
 
-    if (!_root)
-        _root = node;
+    if (!*root)
+        *root = node;
     else
-        _operators.top()->right = node;
+        operators.top()->right = node;
 }
 
-void Parser::parseOperator(const Token &token)
+void Parser::parseOperator(const Token &token, TreeNode **root, std::stack<TreeNode *> &operators)
 {
     switch (token.getOperator())
     {
     case Operator::OpeningBracket:
-        parseOpeningBracket(token);
+        parseOpeningBracket(token, root, operators);
         break;
     case Operator::ClosingBracket:
-        parseClosingBracket(token);
+        parseClosingBracket(token, root, operators);
         break;
     case Operator::Plus:
     case Operator::Minus:
     case Operator::Multiple:
     case Operator::Divide:
-    case Operator ::Equate:
+    case Operator::Equate:
     case Operator::Exponentiation:
-        parseArithmetic(token);
+    case Operator::Print:
+        parseArithmetic(token, root, operators);
         break;
     }
 }
 
-void Parser::parseArithmetic(const Token &token)
+void Parser::parseArithmetic(const Token &token, TreeNode **root, std::stack<TreeNode *> &operators)
 {
     auto node = new TreeNode(TreeItem(token.getOperator()));
 
-    if (_root)
+    if (*root)
     {
-        while (!_operators.empty() && OperatorPriority(token.getOperator()) > OperatorPriority(_operators.top()->value._operator))
-            _operators.pop();
+        while (!operators.empty() && OperatorPriority(token.getOperator()) > OperatorPriority(operators.top()->value._operator))
+            operators.pop();
 
-        if (!_operators.empty())
+        if (!operators.empty())
         {
-            node->left = _operators.top()->right;
-            _operators.top()->right = node;
+            node->left = operators.top()->right;
+            operators.top()->right = node;
         }
         else
         {
-            node->left = _root;
-            _root = node;
+            node->left = *root;
+            *root = node;
         }
     }
+    else if(token.getOperator() == Operator::Print)
+        *root = node;
 
-    _operators.push(node);
+    operators.push(node);
 }
-void Parser::parseClosingBracket(const Token &token)
+void Parser::parseClosingBracket(const Token &token, TreeNode **root, std::stack<TreeNode *> &operators)
 {
-    while (!_operators.empty() && _operators.top()->value._operator != Operator::OpeningBracket)
-        _operators.pop();
+    while (!operators.empty() && operators.top()->value._operator != Operator::OpeningBracket)
+        operators.pop();
 
-    if (_operators.empty())
+    if (operators.empty())
         throw std::logic_error("Opening bracket was expected");
 
-    auto bracket = _operators.top();
+    auto bracket = operators.top();
 
-    _operators.pop();
+    operators.pop();
 
-    if (!_operators.empty())
-        _operators.top()->right = bracket->right;
+    if (!operators.empty())
+        operators.top()->right = bracket->right;
     else
-        _root = bracket->right;
+        *root = bracket->right;
 
-	bracket->left = nullptr;
+    bracket->left = nullptr;
     bracket->right = nullptr;
     delete bracket;
 }
-void Parser::parseOpeningBracket(const Token &token)
+void Parser::parseOpeningBracket(const Token &token, TreeNode **root, std::stack<TreeNode *> &operators)
 {
     auto node = new TreeNode(TreeItem(token.getOperator()));
-    if (!_operators.empty())
-        _operators.top()->right = node;
+    if (!operators.empty())
+        operators.top()->right = node;
     else
-        _root = node;
+        *root = node;
 
-    _operators.push(node);
+    operators.push(node);
 }
-void Parser::parseVariable(const Token &token)
+void Parser::parseSymbol(const Token &token, TreeNode **root, std::stack<TreeNode *> &operators)
 {
-    auto node = new TreeNode(TreeItem(token.getVariable()));
+    auto node = new TreeNode(TreeItem(getOrCreateSymbol(token.getVariable())));
 
-    if (!_root)
-        _root = node;
+    if (!*root)
+        *root = node;
     else
-        _operators.top()->right = node;
+        operators.top()->right = node;
+}
+double *Parser::getOrCreateSymbol(const char *name)
+{
+    if (auto iterator = _symbols.find(name); iterator != _symbols.end())
+        return iterator->second;
+
+    auto symbol = new double();
+    _symbols[name] = symbol;
+    return _symbols[name] = symbol;
 }
 
 } // namespace detail
